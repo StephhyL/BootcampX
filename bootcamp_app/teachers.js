@@ -17,20 +17,22 @@ pool
     console.log(error.message);
   });
 
-const query =
+const queryString =
 `SELECT DISTINCT(teachers.name) AS teacher,
 cohorts.name AS cohort
 FROM teachers
 JOIN assistance_requests ON assistance_requests.teacher_id = teachers.id
 JOIN students ON students.id = assistance_requests.student_id
 JOIN cohorts ON students.cohort_id = cohorts.id
-WHERE cohorts.name IN ($1, 'JUL02')
+WHERE cohorts.name = $1
 `;
 
-const queryCohort = process.argv[2];
+const queryCohort = process.argv[2] || 'JUL02';
+
+const value = [queryCohort];
 
 pool
-  .query(query, [queryCohort])
+  .query(queryString, value)
   .then(res => {
     res.rows.forEach(obj => {
       console.log(`${obj.cohort}: ${obj.teacher}`);
